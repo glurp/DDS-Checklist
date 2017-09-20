@@ -49,26 +49,29 @@ and ethereal/tcpdump**).
 
 ### Checklist for Java participant
 
-1. java parameters 
+1. java parameters/code 
 
    1.  -Djava.library.path=/.../RTI/ndds.XXX/lib/x64Linux2.6gcc4.1.1jdk 
    2.  -XX:ParallelGCThreads=2 
    3.  -classpath :....nddsjava.jar:...
-   4.  for UNCAST Only discovery :
-    > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
    
 
    ​
 
 2. env define
 
-   > export NDDS_DISCOVERY_PEERS=...   # if UNCAST udp usage
+   > export NDDS_DISCOVERY_PEERS=...   # if UNICAST udp usage
+   >
    > export  NDDS_QOS_PROFLE=...xml 
 
-   ​
-
-
-
+3. Java code   ​
+   1.  for UNICAST Only discovery, befor participant creation :
+    > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
+   2. Don't forget register_type foreach topic type
+   3. If you are not sure of partitions names run without partition, observe them with Amin console
+   4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple
+      so users will discover partition name without use of Admin Console or rtps dump
+   
 ### Checklist Windows
 
 ?
@@ -91,7 +94,7 @@ and ethereal/tcpdump**).
 
 2. check with ```ipcs -l```
 
-3. in /etc/hosts, the first declaration must be your public IP adresse (no local loopback !)
+3. in /etc/hosts, the first declaration must be your public IP adresse (not the local loopback !)
 
 4. check netstat, greping with the PID if your preocess
     > pgrep -laf YOURPORCNAME
