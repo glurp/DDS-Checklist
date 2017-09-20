@@ -15,35 +15,33 @@ This list should work for any os/langage/version of application.
 
 
 1. ping each host with other
-2. check firewall(s) : rules are specifique to UDP port, which are link to your domainId ant participantId
+2. check firewall(s) : rules are specifique to UDP port, which are link to your domainId and participantId
 3. traceroute (or tracert) : check if the route is the good way between the 2 hosts
 4. ping with big packet : ``` ping -s 1500``` on linux, ``` ping -l 1500```  for windows
-5. nddsping at each side, each way , with the domainId you use (DomainId and participantId determine 2 UDP port number) :
+5. nddsping at each side, each way , with the domainId you use  :
 
 > ``` nddsping -domaineId DD -peer other-ip  -publish ```
->
-> ```nddsping -domaineId DD -peer other-ip -subscribe```
+> ``` nddsping -domaineId DD -peer other-ip -subscribe```
 
-4. with tcpdump/windump/ethereal , check if DDS use the good IP interface (network card...)
+4. Check if DDS use the good IP interface (network card...) : tcpdump or netstat greped with PID of  nddsping process, see linux CL
 5. each side, run a publisher (nddsping), check nddsspy:
 
-> ```nddsspy -domaindId DD  -peer other-ip  -printsample -tupeWidth 40 -Verbosity 2```
+> ```nddsspy -domaindId DD  -peer other-ip  -printsample -typeWidth 40 -Verbosity 2```
 
 
 
 Now, RTI DDS work with your domainID, so check application level :
 
-1. Sorry but you must dispose of the tool "RTI Admin console". check/play with a ddsping subscribe and publisher (**please help me for a checklist with only ddsspy ant ethereal/tcpdump**).
-2. run your app.
-3. on Admin-console, same host AND distant host....
-4. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, firewall...
+1. Sorry but you must dispose of the tool "RTI Admin console". check/play with a 
+ddsping subscribe and publisher (**please help me for a checklist with only ddsspy 
+and ethereal/tcpdump**).
+2. run your app and Admin-console, same host AND distant host.... :
+4. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
 5. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only"
 6. if error, 
    1. check topic : name, type name, IDL on each side
    2. check partition list (select publisher or subscriber, see partition list filter at DDS Qoq view, )
    3. check all QOS, between writer(s) and reader(s)
-
-
 
 
 
