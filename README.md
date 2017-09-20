@@ -23,8 +23,8 @@ This list should work for any os/langage/version of application.
 > ``` nddsping -domaineId DD -peer other-ip  -publish ```
 > ``` nddsping -domaineId DD -peer other-ip -subscribe```
 
-4. Check if DDS use the good IP interface (network card...) : tcpdump or netstat greped with PID of  nddsping process, see linux CL
-5. each side, run a publisher (nddsping), check nddsspy:
+6. Check if DDS use the good IP interface (network card...) : tcpdump or netstat greped with PID of  nddsping process, see linux CL
+7. each side, run a publisher (nddsping), check nddsspy:
 
 > ```nddsspy -domaindId DD  -peer other-ip  -printsample -typeWidth 40 -Verbosity 2```
 
@@ -77,9 +77,13 @@ and ethereal/tcpdump**).
 1. Kernel tuning if using multiple participant on same host. Here a exemple with CENTOS7, 100 participants) :
 
    > sysctl -w kernel.shmmax=173741824
+   >
    > sysctl -w kernel.shmmni=2048
+   >
    > sysctl -w kernel.shmall=262144
+   >
    > sysctl -w kernel.sem=1000 6400 200 1048
+   >
    > echo 50000 > /proc/sys/kernel/threads-max
 
 2. check with ```ipcs -l```
@@ -88,6 +92,7 @@ and ethereal/tcpdump**).
 
 4. check netstat, greping with the PID if your preocess
     > pgrep -laf YOURPORCNAME
+    >
     > netstat -anp | grep PID
 
 Exemple:
