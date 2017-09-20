@@ -93,7 +93,9 @@ and ethereal/tcpdump**).
 Exemple:
 
 >pgrep -laf Runneur
-21306 java -Djava.... appliserveur.Runneur -xml config/appli_sim.xml -temp /tmp/vmdds
+>
+>21306 java -Djava.... appliserveur.Runneur -xml config/appli_sim.xml -temp /tmp/vmdds
+>
 >netstat -anp | grep 21306
 udp        0      0 0.0.0.0:34157           0.0.0.0:*                           21306/java          
 udp        0      0 0.0.0.0:36826           0.0.0.0:*                           21306/java          
