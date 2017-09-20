@@ -52,8 +52,11 @@ and ethereal/tcpdump**).
 1. java parameters 
 
    1.  -Djava.library.path=/.../RTI/ndds.XXX/lib/x64Linux2.6gcc4.1.1jdk 
-   2.  -XX:ParallelGCThreads=2   # is naturally too big on big server...
-   3. -classpath :....nddsjava.jar:...
+   2.  -XX:ParallelGCThreads=2 
+   3.  -classpath :....nddsjava.jar:...
+   4.  for UNCAST Only discovery :
+    > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
+   
 
    ​
 
