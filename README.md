@@ -30,15 +30,15 @@ This list should work for any os/langage/version of application.
 
 
 
-Now, RTI DDS work with your domainID, so check application level :
+Now, DDS work with your domainID, so check application level :
 
-1. Sorry but you must dispose of the tool "RTI Admin console". check/play with a 
-ddsping subscribe and publisher (**please help me for a checklist with only ddsspy 
-and ethereal/tcpdump**).
+1. Sorry but you must dispose of the tool "Admin console". check/play with a 
+  ddsping subscribe and publisher (**please help me for a checklist with only ddsspy 
+  and ethereal/tcpdump**).
 2. run your app and Admin-console, same host AND distant host.... :
-4. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
-5. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only"
-6. if error, 
+3. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
+4. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only"
+5. if error, 
    1. check topic : name, type name, IDL on each side
    2. check partition list (select publisher or subscriber, see partition list filter at DDS Qoq view, )
    3. check all QOS, between writer(s) and reader(s)
@@ -51,10 +51,10 @@ and ethereal/tcpdump**).
 
 1. java parameters/code 
 
-   1.  -Djava.library.path=/.../RTI/ndds.XXX/lib/x64Linux2.6gcc4.1.1jdk 
+   1.  -Djava.library.path=/.../ndds.XXX/lib/x64Linux2.6gcc4.1.1jdk 
    2.  -XX:ParallelGCThreads=2 
    3.  -classpath :....nddsjava.jar:...
-   
+
 
    ​
 
@@ -71,7 +71,7 @@ and ethereal/tcpdump**).
    3. If you are not sure of partitions names run without partition, observe them with Amin console
    4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple
       so users will discover partition name without use of Admin Console or rtps dump
-   
+
 ### Checklist Windows
 
 ?
