@@ -34,14 +34,12 @@ This list should work for any os/langage/version of application.
 
 
 
-Now, DDS work with your domainID, so check application level :
+Now, DDS work with your domainID, so check application level. Sorry but you must dispose of the tool "Admin console" at this point :
 
-1. Sorry but you must dispose of the tool "Admin console". check/play with a 
-  ddsping subscribe and publisher (** please help me for a checklist with only ddsspy 
-  and ethereal/tcpdump **).
-2. run your app and Admin-console, same host AND distant host.... :
-3. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
-4. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only"
+1. Learn admin console : Check/play with a ddsping subscribe and publisher , ddsspy (adminconsole qhow all exexcept sample data. ddspy show some info, and content of sample ( -printsample ).
+2. Run your app and Admin-console, same host AND distant host.... :
+3. Your process must be present in Admin-console : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
+4. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only". If domain is empty, there are issue with the UDP dataPort (discoveryPort ok, but not dataPort)
 5. if error, 
    1. check topic : name, type name, IDL on each side
    2. check partition list (select publisher or subscriber, see partition list filter at DDS Qoq view, )
@@ -60,7 +58,7 @@ Now, DDS work with your domainID, so check application level :
    3.  -classpath :....nddsjava.jar:...
 
 
-   ​
+   
 
 2. env define
 
@@ -72,7 +70,7 @@ Now, DDS work with your domainID, so check application level :
    1.  for UNICAST Only discovery, declare id in SOS file, or hard code it before participant creation :
     > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
    2. Don't forget register_type foreach topic type
-   3. If you are not sure of partitions names run without partition, observe them with Admin console, or use therreal/tcpdump ith RTSP plugin,
+   3. If you are not sure of partitions names run without partition, observe them with Admin console, or use wireshark/tcpdump with RTSP plugin,
    4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple, so you can see them with ddsspy,
       so users will discover partition name without use of Admin Console or rtps dump
 
@@ -90,7 +88,7 @@ tracert use ICMP without options.
 
 ### Checklist Linux
 
-1. Kernel tuning if using multiple participant on same host. Here a exemple with CENTOS7, 100 participants) :
+1. Kernel tuning if using multiple participant on same host. Here a example with CENTOS7, 100 participants) :
 
    > sysctl -w kernel.shmmax=173741824
    >
@@ -128,7 +126,7 @@ udp        0      0 0.0.0.0:48763           0.0.0.0:*                           
 
 
 Here 10160 and 10161 are UDP port for DDS discovery and DDS data (no for domainId=11, participantId=0).
-please, check if the IP correspond to the interface wich is on the good IP route....
+please, check if the IP correspond to the interface witch is on the good IP route....
 
 
 
@@ -154,8 +152,7 @@ Max 250 Participants on one Host (or less, depend of implementation) ....
 
 
 
- References
----
+###  References
 
 
 
