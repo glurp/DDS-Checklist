@@ -15,15 +15,19 @@ This list should work for any os/langage/version of application.
 
 
 1. ping each host with other
-2. check firewall(s) : rules are specifique to UDP port, which are link to your domainId and participantId
-3. traceroute (or tracert) : check if the route is the good way between the 2 hosts
+2. check firewall(s) : if necessary, create rules for specific port UDP of DDS, which are link to your domainId and participantId (sse end of this doc)
+3. traceroute (or tracert) : check if the route is the good way between the 2 hosts, use traceroute with UDP and ICMP (traceroute usage depends of os)
 4. ping with big packet : ``` ping -s 1500``` on linux, ``` ping -l 1500```  for windows
 5. nddsping at each side, each way , with the domainId you use  :
 
 > ``` nddsping -domaineId DD -peer other-ip  -publish ```
 > ``` nddsping -domaineId DD -peer other-ip -subscribe```
+>
+> When DDSPING is good, you are on the way :)
+>
+> 
 
-6. Check if DDS use the good IP interface (network card...) : tcpdump or netstat greped with PID of  nddsping process, see linux CL
+6. Check if DDS use the good IP interface (network card...) : tcpdump or netstat grep with PID of  nddsping process, see linux CL
 7. each side, run a publisher (nddsping), check nddsspy:
 
 > ```nddsspy -domaindId DD  -peer other-ip  -printsample -typeWidth 40 -Verbosity 2```
@@ -33,8 +37,8 @@ This list should work for any os/langage/version of application.
 Now, DDS work with your domainID, so check application level :
 
 1. Sorry but you must dispose of the tool "Admin console". check/play with a 
-  ddsping subscribe and publisher (**please help me for a checklist with only ddsspy 
-  and ethereal/tcpdump**).
+  ddsping subscribe and publisher (** please help me for a checklist with only ddsspy 
+  and ethereal/tcpdump **).
 2. run your app and Admin-console, same host AND distant host.... :
 3. your process must be present : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
 4. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only"
@@ -64,17 +68,23 @@ Now, DDS work with your domainID, so check application level :
    >
    > export  NDDS_QOS_PROFLE=...xml 
 
-3. Java code   ​
-   1.  for UNICAST Only discovery, befor participant creation :
+3. Java code   
+   1.  for UNICAST Only discovery, declare id in SOS file, or hard code it before participant creation :
     > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
    2. Don't forget register_type foreach topic type
-   3. If you are not sure of partitions names run without partition, observe them with Amin console
-   4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple
+   3. If you are not sure of partitions names run without partition, observe them with Admin console, or use therreal/tcpdump ith RTSP plugin,
+   4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple, so you can see them with ddsspy,
       so users will discover partition name without use of Admin Console or rtps dump
 
 ### Checklist Windows
 
-?
+
+
+ping options end tracert options are different from POSIX system.
+
+tracert use ICMP without options.
+
+
 
 
 
@@ -101,11 +111,11 @@ Now, DDS work with your domainID, so check application level :
     >
     > netstat -anp | grep PID
 
-Exemple:
+Exemple (domainId=11):
 
->pgrep -laf Runneur
+>pgrep -laf **Runneur**
 >
->21306 java -Djava.... appliserveur.Runneur -xml config/appli_sim.xml -temp /tmp/vmdds
+>21306 java -Djava.... appliserveur**.Runneur** -xml config/appli_sim.xml -temp /tmp/vmdds
 >
 >netstat -anp | grep 21306
 
@@ -115,13 +125,45 @@ udp        0      0 0.0.0.0:10160           0.0.0.0:*                           
 udp        0      0 0.0.0.0:10161           0.0.0.0:*                           21306/java          
 udp        0      0 0.0.0.0:48763           0.0.0.0:*                           21306/java    
 
-Here 10160 and 10161 are UDP port for DDS discovery and DDS data.
+
+
+Here 10160 and 10161 are UDP port for DDS discovery and DDS data (no for domainId=11, participantId=0).
 please, check if the IP correspond to the interface wich is on the good IP route....
 
 
-### References
 
-?
+UDP Ports number depend on domainId and participantId, and using Multicast or not:
+
+Multicast:
+
+> portDiscovery =7400+ 250 * domainId + 2 * participantId
+>
+> portData= portDiscovery+1
+
+Unicast:
+
+> 
+>
+> portDiscovery  = 7400 + 250 * domainId + 2* participantId + 10
+>
+> portData= portDiscovery+1
+
+
+
+Max 250 Participants on one Host (or less, depend of implementation) ....
+
+
+
+ References
+---
+
+
+
+UDP_Ports_Used_by_RTI_Connext_DDS.xls
+
+....
+
+
 
 ### License
 
