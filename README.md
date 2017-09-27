@@ -10,40 +10,64 @@ Fell free to append your knowledge here (PR or issue).
 
 ### General Checklist 
 
-This list should work for any os/langage/version of application.
+This chapter should work for any os/language/version of application.
 
 
 
 1. ping each host with other
-2. check firewall(s) : if necessary, create rules for specific port UDP of DDS, which are link to your domainId and participantId (sse end of this doc)
+2. check firewall(s) : if necessary, create rules for specific port UDP of DDS, which are link to your domainId and participantId (see end of this doc)
 3. traceroute (or tracert) : check if the route is the good way between the 2 hosts, use traceroute with UDP and ICMP (traceroute usage depends of os)
 4. ping with big packet : ``` ping -s 1500``` on linux, ``` ping -l 1500```  for windows
-5. nddsping at each side, each way , with the domainId you use  :
+5. check system time on each participant host, use ntp for synchronize all host !
+6. nddsping at each side, each way , with the domainId you use  :
 
 > ``` nddsping -domaineId DD -peer other-ip  -publish ```
 > ``` nddsping -domaineId DD -peer other-ip -subscribe```
+>
+> 
 >
 > When DDSPING is good, you are on the way :)
 >
 > 
 
-6. Check if DDS use the good IP interface (network card...) : tcpdump or netstat grep with PID of  nddsping process, see linux CL
-7. each side, run a publisher (nddsping), check nddsspy:
+6. Check if your application DDS use the good IP interface (network card...) : tcpdump or netstat grep with PID of  nddsping process, see linux CL
+7. Check ddsspy : each side, run a publisher (nddsping), check nddsspy:
 
 > ```nddsspy -domaindId DD  -peer other-ip  -printsample -typeWidth 40 -Verbosity 2```
 
 
 
-Now, DDS work with your domainID, so check application level. Sorry but you must dispose of the tool "Admin console" at this point :
+Now, DDS work with your domainID, tools like ddsping and ddsspy works, so check application level. Sorry but you must dispose of the tool "Admin console" at this point :
 
-1. Learn admin console : Check/play with a ddsping subscribe and publisher , ddsspy (adminconsole qhow all exexcept sample data. ddspy show some info, and content of sample ( -printsample ).
-2. Run your app and Admin-console, same host AND distant host.... :
-3. Your process must be present in Admin-console : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
-4. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only". If domain is empty, there are issue with the UDP dataPort (discoveryPort ok, but not dataPort)
-5. if error, 
+1. Learn admin console : Check/play with a ddsping , ddsspy (adminconsole show all except sample data. ddspy show content of sample ( -printsample ) :
+
+   ```
+   V time        data V     V IP publisher  V topic name    V typeinfo name
+   1506532677.023221  D +M  0ACB4CCA        Mssss            PACK::INFOName           
+
+   idObjet: "EQP_VENT2"                          |
+   idInfo: 1002                                  | the sample data (no marks for grep :( )
+   timestamp: 1506532674649000                   |
+   value: 47                                     | 
+
+   ```
+
+   ​
+
+2. In your App, enable all properties of your listeners, and print a log on each callback of each listener :
+
+   (see java part)
+
+3. **Run your app and Admin-console**, same host AND distant host.... :
+
+4. Your process must be present in Admin-console : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
+
+5. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only". If domain is empty, there are issue with the UDP dataPort (discoveryPort ok, but not dataPort)
+
+6. if error, 
    1. check topic : name, type name, IDL on each side
-   2. check partition list (select publisher or subscriber, see partition list filter at DDS Qoq view, )
-   3. check all QOS, between writer(s) and reader(s)
+   2. check partition list (in Admin console, select publisher or subscriber, see partition list filter at DDS Qos view on subscriber, see real partition name on publisher side )
+   3. check all QOS, between writer(s) and reader(s) : if there are errors, Admin-Consol will show error (Health and Match-Analyses  pad)
 
 
 
@@ -73,6 +97,54 @@ Now, DDS work with your domainID, so check application level. Sorry but you must
    3. If you are not sure of partitions names run without partition, observe them with Admin console, or use wireshark/tcpdump with RTSP plugin,
    4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple, so you can see them with ddsspy,
       so users will discover partition name without use of Admin Console or rtps dump
+
+Example for StatusKind settings (to be confirm by an expert !)  :
+
+```java
+Subscriber subscriber = participant.create_subscriber(
+            subQos, 
+            new GSubscriberListener(),
+            StatusKind.INCONSISTENT_TOPIC_STATUS|
+            StatusKind.REQUESTED_INCOMPATIBLE_QOS_STATUS|					
+             0
+);
+    
+     
+DataReader dr=subscriber.create_datareader_with_profile(topic,
+            "...",
+            profileName, 
+            drListener,
+            StatusKind.DATA_AVAILABLE_STATUS|
+            StatusKind.DATA_ON_READERS_STATUS|
+            StatusKind.DATA_READER_PROTOCOL_STATUS|
+            StatusKind.DDS_DATA_READER_CACHE_STATUS|
+            StatusKind.RELIABLE_READER_ACTIVITY_CHANGED_STATUS|
+            StatusKind.REQUESTED_INCOMPATIBLE_QOS_STATUS|
+0); 
+Publisher publisher = participant.create_publisher(
+        pqos,
+        pubListener, 
+        StatusKind.OFFERED_DEADLINE_MISSED_STATUS|
+        StatusKind.LIVELINESS_LOST_STATUS|
+        StatusKind.OFFERED_INCOMPATIBLE_QOS_STATUS|
+        StatusKind.PUBLICATION_MATCHED_STATUS|
+        StatusKind.RELIABLE_WRITER_CACHE_CHANGED_STATUS|
+        StatusKind.RELIABLE_READER_ACTIVITY_CHANGED_STATUS|
+0);
+
+
+DataWriter dw  = publisher.create_datawriter_with_profile(topic,
+        "...",
+        profileName,
+        dwListener,
+        StatusKind.DATA_WRITER_APPLICATION_ACKNOWLEDGMENT_STATUS|
+        StatusKind.DATA_WRITER_INSTANCE_REPLACED_STATUS|
+        StatusKind.DATA_WRITER_SAMPLE_REMOVED_STATUS|
+        StatusKind.OFFERED_INCOMPATIBLE_QOS_STATUS|
+0);
+```
+
+
 
 ### Checklist Windows
 
@@ -128,7 +200,7 @@ udp        0      0 0.0.0.0:48763           0.0.0.0:*                           
 Here 10160 and 10161 are UDP port for DDS discovery and DDS data (no for domainId=11, participantId=0).
 please, check if the IP correspond to the interface witch is on the good IP route....
 
-
+#### UDP Port Number rules
 
 UDP Ports number depend on domainId and participantId, and using Multicast or not:
 
