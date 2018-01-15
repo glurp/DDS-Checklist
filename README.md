@@ -6,47 +6,98 @@ I use only UDP and UNICAST. So there are nothing here for Multicast and TCP usag
 
 Fell free to append your knowledge here (PR or issue).
 
- 
+### Know the UDP Port used
 
-### General Checklist 
+UDP Ports number depend on domainId and participantId, and using Multicast or not:
 
-This chapter should work for any os/language/version of application.
+Participant ID is 0 for the first participant running on the host, 1 for the second (ddsspy, by exemple) 2 for the third (AdminTool) ...
+
+Max of 250/2=125 participants by host (for one domainId).
+
+
+
+Multicast:
+
+> portDiscovery =7400+ 250 * domainId + 2 * participantId
+>
+> portData= portDiscovery+1
+
+Unicast:
+
+> 
+>
+> portDiscovery  = 7400 + 250 * domainId + 2* participantId + 10
+>
+> portData= portDiscovery+1
+
+You should see your application with netstat :
+
+> DomainId= 11 ==> base port number == 7400+10+250*11 ==> 10160
+>
+> netstat -anp | grep   :1016
+
+udp        0      0 0.0.0.0:10160           0.0.0.0:*                           21306/java          
+udp        0      0 0.0.0.0:10161           0.0.0.0:*                           21306/java          
+
+
+
+#### System checks
 
 
 
 1. ping each host with other
-2. check firewall(s) : if necessary, create rules for specific port UDP of DDS, which are link to your domainId and participantId (see end of this doc)
+2. check firewall(s) : if necessary, create rules for specific port UDP of DDS, which are link to your domainId and participantId (see ports numbers)
 3. traceroute (or tracert) : check if the route is the good way between the 2 hosts, use traceroute with UDP and ICMP (traceroute usage depends of os)
 4. ping with big packet : ``` ping -s 1500``` on linux, ``` ping -l 1500```  for windows
 5. check system time on each participant host, use ntp for synchronize all host !
-6. nddsping at each side, each way , with the domainId you use  :
+
+
+
+#### DDS installations checks
+
+
+
+1. nddsping at each side, each way , with the domainId you use  :
 
 > ``` nddsping -domaineId DD -peer other-ip  -publish ```
 > ``` nddsping -domaineId DD -peer other-ip -subscribe```
 >
 > 
 >
-> When DDSPING is good, you are on the way :)
+> When DDSPING is good, you are on the way :), else, realy, check  yours firewalls...
 >
 > 
 
 6. Check if your application DDS use the good IP interface (network card...) : tcpdump or netstat grep with PID of  nddsping process, see linux CL
-7. Check ddsspy : each side, run a publisher (nddsping), check nddsspy:
+7. Check ddsspy : each side, run a publisher (nddsping), and then check if nddsspy see the pingers:
 
 > ```nddsspy -domaindId DD  -peer other-ip  -printsample -typeWidth 40 -Verbosity 2```
 
 
 
-Now, DDS work with your domainID, tools like ddsping and ddsspy works, so check application level. Sorry but you must dispose of the tool "Admin console" at this point :
+#### DDS Application check
 
-1. Learn admin console : Check/play with a ddsping , ddsspy (adminconsole show all except sample data. ddspy show content of sample ( -printsample ) :
+
+
+Now, DDS work with your domainID, tools like ddsping and ddsspy works, so check application level. 
+
+Sorry but you must dispose of the tool "**Admin console**" at this point.
+
+* check topics data (samples) use ddsspy
+* check publish/subscribe visibility, and QOS Rox : Admin tool. (without admin tool, its becom difficult to diagnostic Rox issues, see listeners callback)
+
+
+
+1. Learn admin console : Check/play with a ddsping 
+
+2. learn to interpret ddsspy :
 
    ```
    V time        data V     V IP publisher  V topic name    V typeinfo name
    1506532677.023221  D +M  0ACB4CCA        Mssss            PACK::INFOName           
 
    idObjet: "EQP_VENT2"                          |
-   idInfo: 1002                                  | the sample data (no marks for grep :( )
+   idInfo: 1002                                  | the sample data 
    timestamp: 1506532674649000                   |
    value: 47                                     | 
 
@@ -54,17 +105,17 @@ Now, DDS work with your domainID, tools like ddsping and ddsspy works, so check 
 
    ​
 
-2. In your App, enable all properties of your listeners, and print a log on each callback of each listener :
+3. In your App, enable all properties of your listeners, and print a log on each callback of each listener :
 
    (see java part)
 
-3. **Run your app and Admin-console**, same host AND distant host.... :
+4. Run your app and Admin-console, same host AND distant host.... :
 
-4. Your process must be present in Admin-console : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
+5. Your process must be present in Admin-console : <host> ==> process : <pid>, if not, error in domain participant / QOS of domain, ip route, firewall...
 
-5. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only". If domain is empty, there are issue with the UDP dataPort (discoveryPort ok, but not dataPort)
+6. on DDS Logical View, the domain should not be empty, only error should be "reader-only" or "writer-only". If domain is empty, there are issue with the UDP dataPort (discoveryPort ok, but not dataPort)
 
-6. if error, 
+7. if error, 
    1. check topic : name, type name, IDL on each side
    2. check partition list (in Admin console, select publisher or subscriber, see partition list filter at DDS Qos view on subscriber, see real partition name on publisher side )
    3. check all QOS, between writer(s) and reader(s) : if there are errors, Admin-Consol will show error (Health and Match-Analyses  pad)
@@ -91,11 +142,10 @@ Now, DDS work with your domainID, tools like ddsping and ddsspy works, so check 
    > export  NDDS_QOS_PROFLE=...xml 
 
 3. Java code   
-   1.  for UNICAST Only discovery, declare id in SOS file, or hard code it before participant creation :
+   1.  for UNICAST Only discovery, declare id in OS file, or hard code it before participant creation :
     > ```PropertyQosPolicyHelper.add_property(qos.property, "dds.transport.UDPv4.multicast_enabled", "0", false);```
-   2. Don't forget register_type foreach topic type
-   3. If you are not sure of partitions names run without partition, observe them with Admin console, or use wireshark/tcpdump with RTSP plugin,
-   4. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple, so you can see them with ddsspy,
+   2. If you are not sure of partitions names run without partition, observe them with Admin console, or use wireshark/tcpdump with RTSP plugin,
+   3. If partition naming is complex, publish them on a general Topic, on a partition name fixed and simple, so you can see them with ddsspy,
       so users will discover partition name without use of Admin Console or rtps dump
 
 Example for StatusKind settings (to be confirm by an expert !)  :
@@ -181,56 +231,11 @@ tracert use ICMP without options.
     >
     > netstat -anp | grep PID
 
-Exemple (domainId=11):
-
->pgrep -laf **Runneur**
->
->21306 java -Djava.... appliserveur**.Runneur** -xml config/appli_sim.xml -temp /tmp/vmdds
->
->netstat -anp | grep 21306
-
-udp        0      0 0.0.0.0:34157           0.0.0.0:*                           21306/java          
-udp        0      0 0.0.0.0:36826           0.0.0.0:*                           21306/java          
-udp        0      0 0.0.0.0:10160           0.0.0.0:*                           21306/java          
-udp        0      0 0.0.0.0:10161           0.0.0.0:*                           21306/java          
-udp        0      0 0.0.0.0:48763           0.0.0.0:*                           21306/java    
 
 
 
-Here 10160 and 10161 are UDP port for DDS discovery and DDS data (no for domainId=11, participantId=0).
-please, check if the IP correspond to the interface witch is on the good IP route....
 
-#### UDP Port Number rules
-
-UDP Ports number depend on domainId and participantId, and using Multicast or not:
-
-Multicast:
-
-> portDiscovery =7400+ 250 * domainId + 2 * participantId
->
-> portData= portDiscovery+1
-
-Unicast:
-
-> 
->
-> portDiscovery  = 7400 + 250 * domainId + 2* participantId + 10
->
-> portData= portDiscovery+1
-
-
-
-Max 250 Participants on one Host (or less, depend of implementation) ....
-
-
-
-###  References
-
-
-
-UDP_Ports_Used_by_RTI_Connext_DDS.xls
-
-....
+###  
 
 
 
