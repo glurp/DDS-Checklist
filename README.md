@@ -221,6 +221,7 @@ tracert use ICMP without options.
    > sysctl -w kernel.sem=1000 6400 200 1048
    >
    > echo 50000 > /proc/sys/kernel/threads-max
+   > sysctl -w  net.core.rmem_max=700000  # buffer size for  UDP reader (or more...)
 
 2. check with ```ipcs -l```
 
