@@ -145,16 +145,24 @@ So your application can be affected to port bigger then (base-port+2*4) ( or par
 
 So your application begin invisible to your DDS domain !!!
 
-Solution:
-
-> use DDD@ip notation for PEERS address
->
-> DDD is the number of participant (max 120) that the client must explore 
->
+Solutions:
+1)
+> use DDD@ip notation for PEERS address.
+> DDD is the number of participant (max 120) that the participant must explore.
 > (so, default is 4 for DDD, this is the issue...)
+2)
+> If this is not enough, see your firewall rules....
+3) 
+> run your application first, and before startup, kill all your common tools : pkill -f ndds ; pkill -f RTI
 
-If this is not enoufgh, see your firewall rules....
 
+**C) (Linux) IPC Sys V issue**
+each topic use 1 array of semaphore, with 32 semaphore in them.
+So if you use several participants with many topics, yours max entity IPCS (kernel tuning)  can be reach.
+
+Solutions:
+1) ```ipcrm -all``` before startup the application (this will also kill other dds participants on same host/user...)
+2) tune your kernel : see  ch. "Checklist Linux"
 
 
 ### Checklist for Java participant
