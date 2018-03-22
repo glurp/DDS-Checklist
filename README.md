@@ -123,6 +123,32 @@ Sorry but you must dispose of the tool "**Admin console**" at this point.
 
 
 
+### All works, but some-time, things go wrong...
+
+**A) Admin console show only applications, no domain/publisher/subscriber.**
+
+****Your application use 2 port : base-port for to be discovered, (base-port+1) for data-exchange. If this second port is not accessible to Admin console,  you see your participant, and nothin into it...
+
+
+
+**B) some time ddsspy (or other participant) do not see your participant.**
+
+for *one host, and one #  of domaineId,* you can use, 120 pariticipants (see the port-numbering rule).But By default, a peer will explore only the 4 first ports of of each peer of his list.
+
+So if you use several participant, ddsspy, Admin console ... , some pusher, some subscriber, each will use one participantId, so one couple of port, so your application can be affected to port bigger then (base-port+2*4)
+
+So your application begin invisible to your DDS domain !!!
+
+Solution:
+
+> use DDD@ip notation for PEERS address
+>
+> DDD is the number of participant (max 120) that the client must explore 
+>
+> (so, default is 4 for DDD, this is the issue...)
+
+
+
 
 ### Checklist for Java participant
 
